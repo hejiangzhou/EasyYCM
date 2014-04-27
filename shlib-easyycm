@@ -1,0 +1,59 @@
+#!/bin/bash
+
+LOCAL_PATH=$(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)
+
+[ -n "$SHLIB_DEPS_INCLUDED" ] && return 0
+
+import()
+{
+    TARGET_LIB=$1
+
+    if [ "${TARGET_LIB:0:1}" != "/" ] && [ -e "$LOCAL_PATH/$TARGET_LIB/.project-deps" ]; then
+        TARGET_LIB="$LOCAL_PATH/$TARGET_LIB"
+    fi
+
+    if [ -d "$TARGET_LIB" ]; then
+        if ! [ -e "$TARGET_LIB/.project-deps" ]; then
+            echo ".project-deps not found in $TARGET_LIB" >&2
+            return 1
+        fi
+        source "$TARGET_LIB/.project-deps"
+    else
+        source "$TARGET_LIB"
+    fi
+
+    if [ -n "$CINCLUDES" ]; then
+        EXPORT_CINCLUDES="$EXPORT_CINCLUDES:$CINCLUDES"
+        unset CINCLUDES
+    fi
+    unset LOCAL_CINCLUDES
+    if [ -n "$CSYSINCLUDES" ]; then
+        EXPORT_CSYSINCLUDES="$EXPORT_CSYSINCLUDES:$CSYSINCLUDES"
+        unset CSYSINCLUDES
+    fi
+    unset LOCAL_CSYSINCLUDES
+    if [ -n "$CFLAGS" ]; then
+        EXPORT_CFLAGS="$EXPORT_CFLAGS:$CFLAGS"
+        unset CFLAGS
+    fi
+    unset LOCAL_CFLAGS
+    if [ -n "$CXXINCLUDES" ]; then
+        EXPORT_CXXINCLUDES="$EXPORT_CXXINCLUDES:$CXXINCLUDES"
+        unset CXXINCLUDES
+    fi
+    unset LOCAL_CXXINCLUDES
+    if [ -n "$CXXSYSINCLUDES" ]; then
+        EXPORT_CXXSYSINCLUDES="$EXPORT_CXXSYSINCLUDES:$CXXSYSINCLUDES"
+        unset CXXSYSINCLUDES
+    fi
+    unset LOCAL_CXXSYSINCLUDES
+    if [ -n "$CXXFLAGS" ]; then
+        EXPORT_CXXFLAGS="$EXPORT_CXXFLAGS:$CXXFLAGS"
+        unset CXXFLAGS
+    fi
+    unset LOCAL_CXXFLAGS
+
+    LOCAL_PATH=$(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)
+}
+
+SHLIB_DEPS_INCLUDED=1
